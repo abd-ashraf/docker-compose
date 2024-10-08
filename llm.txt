@@ -1,3 +1,5 @@
 I used ChatGPT to give me an overview of the exercise. then used it for,
 - defining folder hierarchy structure
 - examples of Dockerfiles
+- syntax of languages
+- code for the nitty gritty details of os abstraction with python and nodejs.
