@@ -1,0 +1,3 @@
+I used ChatGPT to give me an overview of the exercise. then used it for,
+- defining folder hierarchy structure
+- examples of Dockerfiles
