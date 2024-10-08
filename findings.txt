@@ -1,0 +1,17 @@
+- Containerization:
+  * Each service (Service1 and Service2) is running in its own isolated container.
+  * Service1 is exposed on port 8199 on your host machine, making it accessible via http://localhost:8199.
+  * Service2 is not directly exposed to the host, but it communicates with Service1 using Docker's internal network.
+  * The services can communicate internally using Docker’s bridge network, and they access each other using service names (service1 and service2), which are defined in the docker-compose.yml.
+  * External clients can only access Service1 via port 8199, while Service2 is not exposed to the host directly.
+
+- Resource Isolation:
+  * Each container has its own separate filesystem and process namespace
+  * Both services share the host’s CPU and RAM. This is managed by Docker, but they compete for the same resources available on your Windows machine.
+
+- IP Address and Network Behavior:
+  * Each container has its own unique IP address assigned within the Docker network.
+  * These IP addresses are different from the host’s IP address, providing network isolation. Communication between the services and external clients relies on port mapping defined in the docker-compose.yml.
+
+- Security:
+  * Since each container is isolated from the host, security is maintained by the Docker runtime.
