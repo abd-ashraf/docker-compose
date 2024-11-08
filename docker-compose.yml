@@ -1,15 +1,37 @@
 services:
-  service1:
-    build: ./service1
+  nginx:
+    build: ./nginx
     ports:
-      - "8199:8199"
+      - "8198:80"
     networks:
-      - docker-exercise1
+      - loadbalancing
+
+  service1-1:
+    build: ./service1
+    environment:
+      - PORT=8199
+    networks:
+      - loadbalancing
+
+  service1-2:
+    build: ./service1
+    environment:
+      - PORT=8199
+    networks:
+      - loadbalancing
+
+  service1-3:
+    build: ./service1
+    environment:
+      - PORT=8199
+    networks:
+      - loadbalancing
 
   service2:
     build: ./service2
     networks:
-      - docker-exercise1
+      - loadbalancing
+
 networks:
-  docker-exercise1:
+  loadbalancing:
     driver: bridge

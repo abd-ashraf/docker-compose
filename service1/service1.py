@@ -4,6 +4,8 @@ import os
 import subprocess
 import socket
 from requests.exceptions import RequestException
+import time
+import threading
 
 app = Flask(__name__)
 
@@ -50,7 +52,41 @@ def home():
             "error": f"Service2 is not available. Error: {str(e)}"}
 
     combined_info = {"Service1": service1_info, "Service2": service2_info}
+
+    time.sleep(2)
+
     return jsonify(combined_info)
+
+
+@app.route("/stop", methods=["POST"])
+def stop_services():
+    def shutdown():
+        time.sleep(0.1)  # Small delay to ensure response is sent
+        try:
+            # Stop service2 first
+            try:
+                requests.post('http://service2:5000/stop', timeout=1)
+            except:
+                pass  # Service2 might already be stopping
+
+            # Stop other service1 instances
+            other_services = ['service1-1:8199',
+                              'service1-2:8199', 'service1-3:8199']
+            for service in other_services:
+                try:
+                    requests.post(f'http://{service}/stop', timeout=1)
+                except:
+                    pass  # Services might already be stopping
+
+            time.sleep(0.1)  # Small delay before exit
+            os._exit(0)
+        except:
+            os._exit(1)
+
+    # Start shutdown in a separate thread
+    threading.Thread(target=shutdown).start()
+
+    return jsonify({"message": "Stopping services..."})
 
 
 if __name__ == "__main__":

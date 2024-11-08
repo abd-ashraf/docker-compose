@@ -32,6 +32,16 @@ const systemInfo = () => {
   }
 };
 
+app.post("/stop", (req, res) => {
+  // Send response first
+  res.json({ message: "Stopping service2..." });
+  
+  // Exit after a small delay to ensure response is sent
+  setTimeout(() => {
+      process.exit(0);
+  }, 100);
+});
+
 app.get("/system_info", (req, res) => {
   res.json(systemInfo());
 });

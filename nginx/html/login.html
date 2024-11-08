@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Login</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f0f2f5;
+      }
+      .login-container {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+      h1 {
+        margin-bottom: 1.5rem;
+        color: #1a73e8;
+      }
+      .login-button {
+        background-color: #1a73e8;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      .login-button:hover {
+        background-color: #1557b0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <h1>Service Login</h1>
+      <button class="login-button" onclick="redirectToMain()">
+        Login to Service
+      </button>
+    </div>
+
+    <script>
+      function redirectToMain() {
+        // This will trigger the browser's basic auth prompt
+        window.location.href = "/index.html";
+      }
+    </script>
+  </body>
+</html>
