@@ -3,6 +3,11 @@ services:
     build: ./nginx
     ports:
       - "8198:80"
+    depends_on:
+      - service1-1
+      - service1-2
+      - service1-3
+      - service2
     networks:
       - loadbalancing
 
