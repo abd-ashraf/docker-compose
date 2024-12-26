@@ -1,0 +1,42 @@
+# Defining stages in order of execution
+stages:
+  - build
+  - test
+  - deploy
+  
+# Build stage: Builds all Docker images
+build:
+  stage: build
+  script:
+    # Builds all services using docker-compose
+    - docker-compose build --no-cache
+
+# Test stage: Runs automated tests
+test:
+  stage: test
+  script:
+    # Starts the services in detached mode
+    - docker-compose up -d
+    # Waits for services to be ready
+    - sleep 10
+    # Runs tests
+    - curl -f http://localhost:8197/state || exit 1
+    # Basic health check
+    - curl -f http://localhost:8198 || exit 1
+    # Clean up
+    - docker-compose down
+  needs:
+    - build
+
+# Deploy stage: Starts the application
+deploy:
+  stage: deploy
+  script:
+    # Starts all services in detached mode
+    - docker-compose up -d
+    # Verifies deployment
+    - curl -f http://localhost:8198 || exit 1
+  needs:
+    - test
+  # Only deploys if tests pass
+  when: on_success
