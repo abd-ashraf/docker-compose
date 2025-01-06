@@ -1,7 +1,12 @@
-image: docker/compose:latest
-
 stages:
+  - build
   - test
+  - deploy
+
+build:
+  stage: build
+  script:
+    - docker-compose build
 
 test:
   stage: test
@@ -13,3 +18,10 @@ test:
     - docker-compose down
   needs:
     - build
+
+deploy:
+  stage: deploy
+  script:
+    - docker-compose up -d
+  needs:
+    - test
