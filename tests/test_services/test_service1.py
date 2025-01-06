@@ -1,5 +1,8 @@
 import pytest
+import requests
 from service1.service1 import app
+
+auth = ('admin', 'admin123')
 
 @pytest.fixture
 def client():
@@ -9,8 +12,8 @@ def client():
 
 def test_service_response(client):
     """Test if service returns 200 and basic response structure"""
-    response = client.get('/')
-    data = response.get_json()
+    response = requests.get("http://localhost:8198/service1", auth=auth)
+    data = response.json()
     
     assert response.status_code == 200
     assert "Service1" in data
@@ -18,8 +21,8 @@ def test_service_response(client):
 
 def test_service2_error_response(client):
     """Test if response structure is maintained even when Service2 fails"""
-    response = client.get('/')
-    data = response.get_json()
+    response = requests.get("http://localhost:8198/service1", auth=auth)
+    data = response.json()
     
     assert response.status_code == 200
     assert "Service1" in data
