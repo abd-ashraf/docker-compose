@@ -1,22 +1,25 @@
 import pytest
 import requests
 
-def test_service2_system_info():
-    """Test if service2's system info endpoint responds"""
-    response = requests.get("http://localhost:5000/system_info")
+def test_service2_data_in_response():
+    """Test if service2's data is included in the response"""
+    response = requests.get("http://localhost:8198/service1")
     data = response.json()
     
     assert response.status_code == 200
-    assert "IP Address" in data
-    assert "Running Processes" in data
-    assert "Disk Space" in data
-    assert "Uptime" in data
+    assert "Service2" in data
+    service2_data = data["Service2"]
+    assert isinstance(service2_data, dict)  # Verify it's a dictionary
 
-def test_service2_stop():
-    """Test if service2's stop endpoint responds correctly"""
-    response = requests.post("http://localhost:5000/stop")
+def test_service2_data_structure():
+    """Test if service2's data has the expected structure"""
+    response = requests.get("http://localhost:8198/service1")
     data = response.json()
     
     assert response.status_code == 200
-    assert "message" in data
-    assert "Stopping service2..." in data["message"]
+    service2_data = data["Service2"]
+    # Check for expected fields without checking specific values
+    assert "IP Address" in service2_data
+    assert "Running Processes" in service2_data
+    assert "Disk Space" in service2_data
+    assert "Uptime" in service2_data
