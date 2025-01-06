@@ -15,6 +15,7 @@ test:
     - docker-compose up -d
     - sleep 10
     - pytest tests/test_services/test_service1.py -v
+    - pytest tests/test_services/test_service2.py -v
     - docker-compose down
   needs:
     - build
