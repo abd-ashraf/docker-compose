@@ -2,7 +2,6 @@ from flask import Flask, jsonify
 import requests
 import os
 import subprocess
-import socket
 from requests.exceptions import RequestException
 import time
 import threading
