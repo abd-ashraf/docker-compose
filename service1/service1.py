@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import requests
 import os
 import subprocess
@@ -8,6 +8,22 @@ import threading
 
 app = Flask(__name__)
 
+current_state = "INIT"
+
+@app.route("/state", methods=["GET"])
+def get_state():
+    return current_state, 200, {'Content-Type': 'text/plain'}
+
+@app.route("/state", methods=["PUT"])
+def set_state():
+    global current_state
+    new_state = request.get_data().decode('utf-8').strip()
+    
+    if new_state not in ["INIT", "RUNNING", "PAUSED", "SHUTDOWN"]:
+        return "Invalid state", 400
+        
+    current_state = new_state
+    return "OK", 200
 
 def get_system_info():
     try:
