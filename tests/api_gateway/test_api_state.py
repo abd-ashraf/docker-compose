@@ -1,5 +1,6 @@
 import pytest
 import requests
+import time
 
 auth = ('admin', 'admin123')
 
@@ -75,3 +76,33 @@ def test_running_state_behavior():
     # Verify system responds normally
     response = requests.get("http://localhost:8198/service1", auth=auth)
     assert response.status_code == 200
+
+def test_init_state_behavior():
+    """Test if system requires new login in INIT state"""
+    
+    # Set state to INIT
+    requests.put(
+        "http://localhost:8198/state",
+        data="INIT",
+        headers={"Content-Type": "text/plain"}
+    )
+    
+    # Verify system requires login
+    response = requests.get("http://localhost:8198/service1", auth=auth)
+    assert response.status_code == 401  # Unauthorized
+
+def test_shutdown_state_behavior():
+    """Test if system stops containers in SHUTDOWN state"""
+    # Set state to SHUTDOWN
+    requests.put(
+        "http://localhost:8198/state",
+        data="SHUTDOWN",
+        headers={"Content-Type": "text/plain"}
+    )
+    
+    # Give time for shutdown
+    time.sleep(2)
+    
+    # Verify system is not responding
+    response = requests.get("http://localhost:8198/service1", auth=auth)
+    assert response.status_code == 503  # Service Unavailable

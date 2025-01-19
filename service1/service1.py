@@ -42,10 +42,10 @@ def check_state():
     """Check if service should respond based on current state"""
     if current_state == "PAUSED":
         return jsonify({"error": "Service is paused"}), 503
-    elif current_state == "INIT":
-        return jsonify({"error": "Service needs login"}), 401
-    elif current_state == "SHUTDOWN":
-        return jsonify({"error": "Service is shutting down"}), 503
+    # elif current_state == "INIT":
+    #     return jsonify({"error": "Service needs login"}), 401
+    # elif current_state == "SHUTDOWN":
+    #     return jsonify({"error": "Service is shutting down"}), 503
     return None
 
 def get_system_info():
