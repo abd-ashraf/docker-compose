@@ -1,9 +1,11 @@
 import pytest
 import requests
 
+auth = ('admin', 'admin123')
+
 def test_get_initial_state():
     """Test if GET /state returns a valid initial state"""
-    response = requests.get("http://localhost:8198/state")
+    response = requests.get("http://localhost:8198/state", auth=auth)
     assert response.status_code == 200
     assert response.text in ["INIT", "RUNNING", "PAUSED", "SHUTDOWN"]
 
@@ -12,12 +14,13 @@ def test_put_valid_state():
     response = requests.put(
         "http://localhost:8198/state",
         data="RUNNING",
-        headers={"Content-Type": "text/plain"}
+        headers={"Content-Type": "text/plain"},
+        auth=auth
     )
     assert response.status_code == 200
     
     # Verify state was changed
-    response = requests.get("http://localhost:8198/state")
+    response = requests.get("http://localhost:8198/state", auth=auth)
     assert response.text == "RUNNING"
 
 def test_put_invalid_state():
@@ -25,7 +28,8 @@ def test_put_invalid_state():
     response = requests.put(
         "http://localhost:8198/state",
         data="INVALID_STATE",
-        headers={"Content-Type": "text/plain"}
+        headers={"Content-Type": "text/plain"},
+        auth=auth
     )
     assert response.status_code == 400
     
@@ -35,11 +39,12 @@ def test_run_log():
     requests.put(
         "http://localhost:8198/state",
         data="RUNNING",
-        headers={"Content-Type": "text/plain"}
+        headers={"Content-Type": "text/plain"},
+        auth=auth
     )
     
     # Verify state transition was recorded
-    response = requests.get("http://localhost:8198/run-log")
+    response = requests.get("http://localhost:8198/run-log", auth=auth)
     assert response.status_code == 200
     assert "INIT->RUNNING" in response.text
     
@@ -49,11 +54,12 @@ def test_paused_state_behavior():
     requests.put(
         "http://localhost:8198/state",
         data="PAUSED",
-        headers={"Content-Type": "text/plain"}
+        headers={"Content-Type": "text/plain"},
+        auth=auth
     )
     
     # Verify system doesn't respond
-    response = requests.get("http://localhost:8198/service1")
+    response = requests.get("http://localhost:8198/service1", auth=auth)
     assert response.status_code == 503  # Service Unavailable
 
 def test_running_state_behavior():
@@ -62,9 +68,10 @@ def test_running_state_behavior():
     requests.put(
         "http://localhost:8198/state",
         data="RUNNING",
-        headers={"Content-Type": "text/plain"}
+        headers={"Content-Type": "text/plain"},
+        auth=auth
     )
     
     # Verify system responds normally
-    response = requests.get("http://localhost:8198/service1")
+    response = requests.get("http://localhost:8198/service1", auth=auth)
     assert response.status_code == 200
