@@ -9,6 +9,16 @@ def client():
     app.config["TESTING"] = True
     with app.test_client() as client:
         yield client
+        
+@pytest.fixture(autouse=True)
+def ensure_running_state():
+    """Ensure system is in RUNNING state before each test"""
+    requests.put(
+        "http://localhost:8198/state",
+        data="RUNNING",
+        headers={"Content-Type": "text/plain"},
+        auth=auth
+    )
 
 def test_service_response(client):
     """Test if service returns 200 and basic response structure"""

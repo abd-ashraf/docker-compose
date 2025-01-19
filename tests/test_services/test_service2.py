@@ -4,6 +4,16 @@ import requests
 # authentication
 auth = ('admin', 'admin123')
 
+@pytest.fixture(autouse=True)
+def ensure_running_state():
+    """Ensure system is in RUNNING state before each test"""
+    requests.put(
+        "http://localhost:8198/state",
+        data="RUNNING",
+        headers={"Content-Type": "text/plain"},
+        auth=auth
+    )
+
 def test_service2_data_in_response():
     """Test if service2's data is included in the response"""
     response = requests.get("http://localhost:8198/service1", auth=auth)
