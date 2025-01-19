@@ -5,25 +5,39 @@ import subprocess
 from requests.exceptions import RequestException
 import time
 import threading
+from datetime import datetime
 
 app = Flask(__name__)
 
 current_state = "INIT"
+state_transitions = []
 
 @app.route("/state", methods=["GET"])
 def get_state():
     return current_state, 200, {'Content-Type': 'text/plain'}
 
+def log_state_transition(old_state, new_state):
+   timestamp = datetime.now().strftime("%Y-%m-%dT%H.%M:%S.%fZ")
+   state_transitions.append(f"{timestamp}: {old_state}->{new_state}")
+
+@app.route("/run-log", methods=["GET"])
+def get_run_log():
+   return "\n".join(state_transitions), 200, {'Content-Type': 'text/plain'}
+
 @app.route("/state", methods=["PUT"])
 def set_state():
-    global current_state
-    new_state = request.get_data().decode('utf-8').strip()
-    
-    if new_state not in ["INIT", "RUNNING", "PAUSED", "SHUTDOWN"]:
-        return "Invalid state", 400
-        
-    current_state = new_state
-    return "OK", 200
+   global current_state
+   new_state = request.get_data().decode('utf-8').strip()
+   
+   if new_state not in ["INIT", "RUNNING", "PAUSED", "SHUTDOWN"]:
+       return "Invalid state", 400
+   
+   if new_state != current_state:
+       log_state_transition(current_state, new_state)
+       current_state = new_state
+       
+   return "OK", 200
+
 
 def get_system_info():
     try:
