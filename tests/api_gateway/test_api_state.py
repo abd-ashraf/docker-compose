@@ -40,7 +40,7 @@ def test_run_log():
         "http://localhost:8198/state",
         data="RUNNING",
         headers={"Content-Type": "text/plain"},
-        auth=auth
+        auth=auth 
     )
     
     # Verify state transition was recorded
