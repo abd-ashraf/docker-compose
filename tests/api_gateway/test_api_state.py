@@ -28,3 +28,17 @@ def test_put_invalid_state():
         headers={"Content-Type": "text/plain"}
     )
     assert response.status_code == 400
+    
+def test_run_log():
+    """Test if run-log records state transitions"""
+    # Set state to RUNNING
+    requests.put(
+        "http://localhost:8198/state",
+        data="RUNNING",
+        headers={"Content-Type": "text/plain"}
+    )
+    
+    # Verify state transition was recorded
+    response = requests.get("http://localhost:8198/run-log")
+    assert response.status_code == 200
+    assert "INIT->RUNNING" in response.text
