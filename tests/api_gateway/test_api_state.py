@@ -42,3 +42,29 @@ def test_run_log():
     response = requests.get("http://localhost:8198/run-log")
     assert response.status_code == 200
     assert "INIT->RUNNING" in response.text
+    
+def test_paused_state_behavior():
+    """Test if system doesn't respond when PAUSED"""
+    # Set state to PAUSED
+    requests.put(
+        "http://localhost:8198/state",
+        data="PAUSED",
+        headers={"Content-Type": "text/plain"}
+    )
+    
+    # Verify system doesn't respond
+    response = requests.get("http://localhost:8198/service1")
+    assert response.status_code == 503  # Service Unavailable
+
+def test_running_state_behavior():
+    """Test if system responds normally when RUNNING"""
+    # Set state to RUNNING
+    requests.put(
+        "http://localhost:8198/state",
+        data="RUNNING",
+        headers={"Content-Type": "text/plain"}
+    )
+    
+    # Verify system responds normally
+    response = requests.get("http://localhost:8198/service1")
+    assert response.status_code == 200
