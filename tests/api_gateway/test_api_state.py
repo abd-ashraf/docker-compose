@@ -103,6 +103,9 @@ def test_shutdown_state_behavior():
     # Give time for shutdown
     time.sleep(2)
     
-    # Verify system is not responding
-    response = requests.get("http://localhost:8198/service1", auth=auth)
-    assert response.status_code == 503  # Service Unavailable
+    # Verify system is not responding - should raise ConnectionError
+    try:
+        requests.get("http://localhost:8198/service1", auth=auth)
+        assert False, "Server should not be responding"
+    except requests.exceptions.ConnectionError:
+        assert True  # Expected behavior when server shuts down

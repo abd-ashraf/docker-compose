@@ -24,28 +24,40 @@ def log_state_transition(old_state, new_state):
 def get_run_log():
    return "\n".join(state_transitions), 200, {'Content-Type': 'text/plain'}
 
+def reset_to_initial_state():
+    """Reset everything except logs to initial state"""
+    global current_state
+    current_state = "INIT"
+    return jsonify({"error": "System reset to initial state"}), 401
+
 @app.route("/state", methods=["PUT"])
 def set_state():
-   global current_state
-   new_state = request.get_data().decode('utf-8').strip()
-   
-   if new_state not in ["INIT", "RUNNING", "PAUSED", "SHUTDOWN"]:
-       return "Invalid state", 400
-   
-   if new_state != current_state:
-       log_state_transition(current_state, new_state)
-       current_state = new_state
-       
-   return "OK", 200
+    global current_state
+    new_state = request.get_data().decode('utf-8').strip()
+    
+    if new_state not in ["INIT", "RUNNING", "PAUSED", "SHUTDOWN"]:
+        return "Invalid state", 400
+    
+    if new_state != current_state:
+        log_state_transition(current_state, new_state)
+        current_state = new_state
+        
+        # Handle special states
+        if new_state == "INIT":
+            reset_to_initial_state()
+        elif new_state == "SHUTDOWN":
+            threading.Thread(target=stop_services).start()
+        
+    return "OK", 200
 
 def check_state():
     """Check if service should respond based on current state"""
     if current_state == "PAUSED":
         return jsonify({"error": "Service is paused"}), 503
-    # elif current_state == "INIT":
-    #     return jsonify({"error": "Service needs login"}), 401
-    # elif current_state == "SHUTDOWN":
-    #     return jsonify({"error": "Service is shutting down"}), 503
+    elif current_state == "INIT":
+        return jsonify({"error": "Service needs login"}), 401
+    elif current_state == "SHUTDOWN":
+        return jsonify({"error": "Service is shutting down"}), 503
     return None
 
 def get_system_info():
@@ -103,32 +115,33 @@ def home():
 
 @app.route("/stop", methods=["POST"])
 def stop_services():
+    global current_state
+    current_state = "SHUTDOWN"  # Update state before shutdown
+    
     def shutdown():
-        time.sleep(0.1)  # Small delay to ensure response is sent
+        time.sleep(0.1)
         try:
             # Stop service2 first
             try:
                 requests.post('http://service2:5000/stop', timeout=1)
             except:
-                pass  # Service2 might already be stopping
+                pass
 
             # Stop other service1 instances
             other_services = ['service1-1:8199',
-                              'service1-2:8199', 'service1-3:8199']
+                            'service1-2:8199', 'service1-3:8199']
             for service in other_services:
                 try:
                     requests.post(f'http://{service}/stop', timeout=1)
                 except:
-                    pass  # Services might already be stopping
+                    pass
 
-            time.sleep(0.1)  # Small delay before exit
+            time.sleep(0.1)
             os._exit(0)
         except:
             os._exit(1)
 
-    # Start shutdown in a separate thread
     threading.Thread(target=shutdown).start()
-
     return jsonify({"message": "Stopping services..."})
 
 
