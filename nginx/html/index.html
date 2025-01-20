@@ -53,23 +53,62 @@
         background-color: #dc3545;
         color: white;
       }
+
+      .state-display {
+        margin-bottom: 15px;
+        padding: 8px;
+        border-radius: 4px;
+        background-color: #f8f9fa;
+        display: inline-block;
+      }
+      .state-text {
+        font-weight: bold;
+        color: #4285f4;
+      }
     </style>
   </head>
   <body>
     <div class="container">
       <h1>Service Interface</h1>
+      <!-- Add state display -->
+      <div class="state-display">
+        System State:
+        <span id="currentState" class="state-text">Loading...</span>
+      </div>
       <div class="button-container">
-        <button class="request-button" onclick="sendRequest()">REQUEST</button>
+        <button
+          class="request-button"
+          id="requestButton"
+          onclick="sendRequest()"
+        >
+          REQUEST
+        </button>
         <button class="stop-button" onclick="stopServices()">STOP</button>
       </div>
       <pre id="responseArea"></pre>
     </div>
 
     <script>
+      // Keep your existing functions
       function formatResponse(data) {
         return JSON.stringify(data, null, 2)
-          .replace(/\\n/g, "\n") // Convert \n string to actual newlines
-          .replace(/\\/g, ""); // Remove remaining backslashes
+          .replace(/\\n/g, "\n")
+          .replace(/\\/g, "");
+      }
+
+      // Add state checking function
+      async function checkState() {
+        try {
+          const response = await fetch("/state");
+          const state = await response.text();
+          document.getElementById("currentState").textContent = state;
+
+          // Update button state
+          const requestButton = document.getElementById("requestButton");
+          requestButton.disabled = state === "PAUSED" || state === "SHUTDOWN";
+        } catch (error) {
+          console.error("Error checking state:", error);
+        }
       }
 
       async function sendRequest() {
@@ -96,6 +135,29 @@
           }
         }
       }
+
+      async function initializeState() {
+        try {
+          await fetch("/state", {
+            method: "PUT",
+            body: "RUNNING",
+            headers: {
+              "Content-Type": "text/plain",
+            },
+          });
+          console.log("System state set to RUNNING");
+        } catch (error) {
+          console.error("Error setting initial state:", error);
+        }
+      }
+
+      // Call initializeState when page loads (after successful auth)
+      document.addEventListener("DOMContentLoaded", initializeState);
+
+      // Check state periodically
+      setInterval(checkState, 5000);
+      // Initial state check
+      checkState();
     </script>
   </body>
 </html>
