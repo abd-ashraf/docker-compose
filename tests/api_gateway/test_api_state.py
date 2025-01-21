@@ -84,7 +84,8 @@ def test_init_state_behavior():
     requests.put(
         "http://localhost:8198/state",
         data="INIT",
-        headers={"Content-Type": "text/plain"}
+        headers={"Content-Type": "text/plain"},
+        auth=auth
     )
     
     # Verify system requires login
@@ -97,7 +98,8 @@ def test_shutdown_state_behavior():
     requests.put(
         "http://localhost:8198/state",
         data="SHUTDOWN",
-        headers={"Content-Type": "text/plain"}
+        headers={"Content-Type": "text/plain"},
+        auth=auth
     )
     
     # Give time for shutdown
