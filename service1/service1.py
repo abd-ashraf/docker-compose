@@ -28,7 +28,7 @@ def reset_to_initial_state():
     """Reset everything except logs to initial state"""
     global current_state
     current_state = "INIT"
-    return jsonify({"error": "System reset to initial state"}), 401
+    return jsonify({"error": "System reset to initial state"}), 401 
 
 @app.route("/state", methods=["PUT"])
 def set_state():
