@@ -83,8 +83,20 @@
         >
           REQUEST
         </button>
-        <button class="stop-button" onclick="stopServices()">STOP</button>
+        <!-- <button class="stop-button" onclick="changeState('SHUTDOWN')">
+          SHUTDOWN
+        </button> -->
+        <button class="request-button" onclick="changeState('RUNNING')">
+          RUN
+        </button>
+        <button class="stop-button" onclick="changeState('PAUSED')">
+          PAUSE
+        </button>
+        <button class="request-button" onclick="changeState('INIT')">
+          RESET
+        </button>
       </div>
+
       <pre id="responseArea"></pre>
     </div>
 
@@ -103,9 +115,16 @@
           const state = await response.text();
           document.getElementById("currentState").textContent = state;
 
-          // Update button state
-          const requestButton = document.getElementById("requestButton");
-          requestButton.disabled = state === "PAUSED" || state === "SHUTDOWN";
+          // Enable/disable buttons based on state
+          document
+            .querySelectorAll(".button-container button")
+            .forEach((button) => {
+              if (state === "SHUTDOWN") {
+                button.disabled = true; // Disable all buttons if system is shutting down
+              } else {
+                button.disabled = false;
+              }
+            });
         } catch (error) {
           console.error("Error checking state:", error);
         }
@@ -138,14 +157,20 @@
 
       async function initializeState() {
         try {
-          await fetch("/state", {
-            method: "PUT",
-            body: "RUNNING",
-            headers: {
-              "Content-Type": "text/plain",
-            },
-          });
-          console.log("System state set to RUNNING");
+          const response = await fetch("/state");
+          const state = await response.text();
+
+          if (state === "INIT") {
+            // Only set to RUNNING if it's INIT
+            await fetch("/state", {
+              method: "PUT",
+              body: "RUNNING",
+              headers: { "Content-Type": "text/plain" },
+            });
+            console.log("System state set to RUNNING");
+          }
+
+          checkState(); // Ensure UI updates correctly
         } catch (error) {
           console.error("Error setting initial state:", error);
         }
@@ -158,6 +183,36 @@
       setInterval(checkState, 5000);
       // Initial state check
       checkState();
+
+      async function changeState(newState) {
+        try {
+          const response = await fetch("/state", {
+            method: "PUT",
+            body: newState,
+            headers: { "Content-Type": "text/plain" },
+          });
+
+          if (response.ok) {
+            document.getElementById("currentState").textContent = newState;
+
+            if (newState === "INIT") {
+              logout(); // Force logout when INIT is clicked
+            }
+          } else {
+            alert("Failed to update state!");
+          }
+        } catch (error) {
+          console.error("Error changing state:", error);
+        }
+      }
+      
+      function logout() {
+        fetch("/logout", { method: "GET", credentials: "include" }) // Force 401 Unauthorized
+          .then(() => {
+            window.location.href = "/"; // Redirect to login page
+          })
+          .catch((error) => console.error("Logout failed:", error));
+      }
     </script>
   </body>
 </html>
