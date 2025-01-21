@@ -205,11 +205,11 @@
           console.error("Error changing state:", error);
         }
       }
-      
+
       function logout() {
-        fetch("/logout", { method: "GET", credentials: "include" }) // Force 401 Unauthorized
+        fetch("/logout", { method: "GET", credentials: "include" })
           .then(() => {
-            window.location.href = "/"; // Redirect to login page
+            window.location.replace("/"); // Does both redirect and reload
           })
           .catch((error) => console.error("Logout failed:", error));
       }
