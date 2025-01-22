@@ -32,22 +32,19 @@ test:
 deploy:
   stage: deploy
   before_script:
+    - pwd  # Print working directory
+    - ls -la  # List all files in current directory
     - mkdir -p ~/.ssh
-    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
-    - chmod 600 ~/.ssh/deploy_key
-    - ssh-keygen -R $SSH_HOST
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
   script:
-    # First, copy all necessary files to the remote server
-    - scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no docker-compose.yml $SSH_USER@$SSH_HOST:~/app/
-    - scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -r nginx/ $SSH_USER@$SSH_HOST:~/app/
-    - scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -r service1/ $SSH_USER@$SSH_HOST:~/app/
-    - scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -r service2/ $SSH_USER@$SSH_HOST:~/app/
+    # Copy files
+    - scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no docker-compose.yml $SSH_USER@$SSH_HOST:~/
+    - scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -r nginx service1 service2 $SSH_USER@$SSH_HOST:~/
     
-    # Then execute commands on remote server
-    - ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "
-        cd ~/app &&
-        docker-compose down || true &&
-        docker-compose build --no-cache &&
-        docker-compose up -d"
+    # Deploy
+    - ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "
+        docker-compose down;
+        docker-compose up -d --build"
   needs:
     - test
