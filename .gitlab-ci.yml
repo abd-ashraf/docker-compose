@@ -20,7 +20,7 @@ test:
   script:
     - pip install pytest pytest-mock requests flask
     - docker-compose up -d
-    - sleep 20
+    - sleep 10
     - pytest tests/test_services/test_service1.py -v
     - pytest tests/test_services/test_service2.py -v
     - pytest tests/api_gateway/test_api_state.py -v
