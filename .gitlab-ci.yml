@@ -3,11 +3,18 @@ stages:
   - test
   - deploy
  
+variables:
+  SSH_USER: "ubuntu"
+  SSH_HOST: "86.50.231.23"
+  SSH_PRIVATE_KEY: "$SSH_PRIVATE_KEY"
+
+# 1️⃣ Building Docker Image
 build:
   stage: build
   script:
     - docker-compose build
 
+# 2️⃣ Running Tests
 test:
   stage: test
   script:
@@ -21,9 +28,19 @@ test:
   needs:
     - build
 
+# 3️⃣ Deploying to CSC VM via SSH
 deploy:
   stage: deploy
+  before_script:
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+    - chmod 600 ~/.ssh/deploy_key
   script:
-    - docker-compose up -d
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key $SSH_USER@$SSH_HOST << 'EOF'
+      cd ~/app || mkdir ~/app && cd ~/app
+      git pull origin project
+      docker-compose down
+      docker-compose up -d --build
+      EOF
   needs:
     - test
