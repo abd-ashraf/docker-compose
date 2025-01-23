@@ -1,66 +1,86 @@
-from flask import Flask, jsonify, request
-import requests
+"""
+Flask-based service1 that manages system state and provides system information.
+This service can interact with service2 and handles state transitions.
+"""
+
+# Standard library imports
 import os
 import subprocess
-from requests.exceptions import RequestException
-import time
 import threading
+import time
 from datetime import datetime
+
+# Third-party imports
+from flask import Flask, jsonify, request
+import requests
+from requests.exceptions import RequestException
 
 app = Flask(__name__)
 
-current_state = "INIT"
+CURRENT_STATE = "INIT"
 state_transitions = []
+
 
 @app.route("/state", methods=["GET"])
 def get_state():
-    return current_state, 200, {'Content-Type': 'text/plain'}
+    """Return the current state of the system."""
+    return CURRENT_STATE, 200, {'Content-Type': 'text/plain'}
+
 
 def log_state_transition(old_state, new_state):
-   timestamp = datetime.now().strftime("%Y-%m-%dT%H.%M:%S.%fZ")
-   state_transitions.append(f"{timestamp}: {old_state}->{new_state}")
+    """Log state transitions with timestamps."""
+    timestamp = datetime.now().strftime("%Y-%m-%dT%H.%M:%S.%fZ")
+    state_transitions.append(f"{timestamp}: {old_state}->{new_state}")
+
 
 @app.route("/run-log", methods=["GET"])
 def get_run_log():
-   return "\n".join(state_transitions), 200, {'Content-Type': 'text/plain'}
+    """Return the log of all state transitions."""
+    return "\n".join(state_transitions), 200, {'Content-Type': 'text/plain'}
+
 
 def reset_to_initial_state():
     """Reset everything except logs to initial state"""
-    global current_state
-    current_state = "INIT"
-    return jsonify({"error": "System reset to initial state"}), 401 
+    global CURRENT_STATE
+    CURRENT_STATE = "INIT"
+    return jsonify({"error": "System reset to initial state"}), 401
+
 
 @app.route("/state", methods=["PUT"])
 def set_state():
-    global current_state
+    """Set the system state to a new value."""
+    global CURRENT_STATE
     new_state = request.get_data().decode('utf-8').strip()
-    
+
     if new_state not in ["INIT", "RUNNING", "PAUSED", "SHUTDOWN"]:
         return "Invalid state", 400
-    
-    if new_state != current_state:
-        log_state_transition(current_state, new_state)
-        current_state = new_state
-        
+
+    if new_state != CURRENT_STATE:
+        log_state_transition(CURRENT_STATE, new_state)
+        CURRENT_STATE = new_state
+
         # Handle special states
         if new_state == "INIT":
             reset_to_initial_state()
         elif new_state == "SHUTDOWN":
             threading.Thread(target=stop_services).start()
-        
+
     return "OK", 200
+
 
 def check_state():
     """Check if service should respond based on current state"""
-    if current_state == "PAUSED":
+    if CURRENT_STATE == "PAUSED":
         return jsonify({"error": "Service is paused"}), 503
-    elif current_state == "INIT":
+    elif CURRENT_STATE == "INIT":
         return jsonify({"error": "Service needs login"}), 401
-    elif current_state == "SHUTDOWN":
+    elif CURRENT_STATE == "SHUTDOWN":
         return jsonify({"error": "Service is shutting down"}), 503
     return None
 
+
 def get_system_info():
+    """Retrieve system information including IP, processes, disk space, and uptime."""
     try:
         # Get IP address
         ip_address = subprocess.check_output(
@@ -90,11 +110,12 @@ def get_system_info():
 
 @app.route("/", methods=["GET"])
 def home():
+    """Handle home route and return combined system information."""
     # Check state before processing
     state_check = check_state()
     if state_check:
         return state_check
-    
+
     service1_info = get_system_info()
 
     try:
@@ -115,9 +136,10 @@ def home():
 
 @app.route("/stop", methods=["POST"])
 def stop_services():
-    global current_state
-    current_state = "SHUTDOWN"  # Update state before shutdown
-    
+    """Stop all services in the correct order."""
+    global CURRENT_STATE
+    CURRENT_STATE = "SHUTDOWN"  # Update state before shutdown
+
     def shutdown():
         time.sleep(0.1)
         try:
@@ -129,7 +151,7 @@ def stop_services():
 
             # Stop other service1 instances
             other_services = ['service1-1:8199',
-                            'service1-2:8199', 'service1-3:8199']
+                              'service1-2:8199', 'service1-3:8199']
             for service in other_services:
                 try:
                     requests.post(f'http://{service}/stop', timeout=1)

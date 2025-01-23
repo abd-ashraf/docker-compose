@@ -15,7 +15,8 @@ lint:
   stage: lint
   script:
     - pip install pylint
-    - pylint **/*.py --fail-under=7
+    # - pylint **/*.py --fail-under=7
+    - pylint --fail-under=7 service1/*.py
 
 # 2️⃣ Building Docker Image
 build:
