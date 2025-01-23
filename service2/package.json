@@ -1,8 +1,14 @@
 {
   "scripts": {
-    "start": "node service2.js"
+    "start": "node service2.js",
+    "lint": "eslint ."
   },
   "dependencies": {
     "express": "^4.21.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "eslint": "^9.18.0",
+    "globals": "^15.14.0"
   }
 }

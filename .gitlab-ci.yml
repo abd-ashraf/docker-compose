@@ -14,9 +14,14 @@ variables:
 lint:
   stage: lint
   script:
+    # Python Linting
     - pip install pylint
     # - pylint **/*.py --fail-under=7
     - pylint --fail-under=7 service1/*.py
+
+    # JavaScript Linting
+    - npm install eslint --save-dev
+    - npx eslint service2/service2.js
 
 # 2️⃣ Building Docker Image
 build:
