@@ -13,8 +13,11 @@ variables:
 # 1️⃣ Linting with pylint
 lint:
   stage: lint
-  image: node:22
+  image: node:18
   script:
+    # Installing Node.js and npm
+    - apt-get update && apt-get install -y nodejs npm
+
     # Python Linting
     - pip install pylint
     # - pylint **/*.py --fail-under=7
