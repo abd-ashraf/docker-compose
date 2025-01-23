@@ -13,6 +13,7 @@ variables:
 # 1️⃣ Linting with pylint
 lint:
   stage: lint
+  image: node:22
   script:
     # Python Linting
     - pip install pylint
