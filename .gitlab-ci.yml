@@ -15,6 +15,9 @@ lint:
   stage: lint
   image: node:18
   before_script:
+    - export NVM_DIR="$HOME/.nvm"
+    - source "$NVM_DIR/nvm.sh"  # Load NVM
+    - nvm use 20
     - npm install eslint --save-dev  # Install ESLint
   script:
     # Installing Node.js and npm
