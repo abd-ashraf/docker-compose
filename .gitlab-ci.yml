@@ -30,7 +30,7 @@ lint:
 
     # JavaScript Linting
     - cd service2
-    - npx eslint service2.js --config eslint.config.mjs --fix || true
+    - npx eslint service2.js --config eslint.config.mjs
 
 # 2️⃣ Building Docker Image
 build:

@@ -1,6 +1,5 @@
 const express = require("express");
 const { execSync } = require("child_process");
-const os = require("os");
 const fs = require("fs");
 
 const app = express();
@@ -35,10 +34,10 @@ const systemInfo = () => {
 app.post("/stop", (req, res) => {
   // Send response first
   res.json({ message: "Stopping service2..." });
-  
+
   // Exit after a small delay to ensure response is sent
   setTimeout(() => {
-      process.exit(0);
+    Node.process.exit(0);
   }, 100);
 });
 
