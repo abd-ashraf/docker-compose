@@ -14,6 +14,8 @@ variables:
 lint:
   stage: lint
   image: node:18
+  before_script:
+    - npm install eslint --save-dev  # Install ESLint
   script:
     # Installing Node.js and npm
     - apt-get update && apt-get install -y nodejs npm
@@ -24,7 +26,6 @@ lint:
     - pylint --fail-under=7 service1/*.py
 
     # JavaScript Linting
-    - npm install eslint --save-dev
     - npx eslint service2/service2.js
 
 # 2️⃣ Building Docker Image
