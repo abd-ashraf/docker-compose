@@ -3,7 +3,7 @@ services:
     build: ./nginx
     ports:
       - "8198:8198" # Web interface
-      - "8197:80" # API
+      - "8197:8197" # API
     depends_on:
       - service1-1
       - service1-2

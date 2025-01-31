@@ -111,7 +111,9 @@
       // Add state checking function
       async function checkState() {
         try {
-          const response = await fetch("/state");
+          const response = await fetch("http://localhost:8197/state", {
+            credentials: "include",
+          });
           const state = await response.text();
           document.getElementById("currentState").textContent = state;
 
@@ -132,7 +134,9 @@
 
       async function sendRequest() {
         try {
-          const response = await fetch("/service1");
+          const response = await fetch("http://localhost:8197/request", {
+            credentials: "include",
+          });
           const data = await response.json();
           document.getElementById("responseArea").textContent =
             formatResponse(data);
@@ -157,12 +161,15 @@
 
       async function initializeState() {
         try {
-          const response = await fetch("/state");
+          const response = await fetch("http://localhost:8197/state", {
+            credentials: "include",
+          });
           const state = await response.text();
 
           if (state === "INIT") {
             // Only set to RUNNING if it's INIT
-            await fetch("/state", {
+            await fetch("http://localhost:8197/state", {
+              credentials: "include",
               method: "PUT",
               body: "RUNNING",
               headers: { "Content-Type": "text/plain" },
@@ -186,7 +193,8 @@
 
       async function changeState(newState) {
         try {
-          const response = await fetch("/state", {
+          const response = await fetch("http://localhost:8197/state", {
+            credentials: "include",
             method: "PUT",
             body: newState,
             headers: { "Content-Type": "text/plain" },
@@ -207,9 +215,25 @@
       }
 
       function logout() {
-        fetch("/logout", { method: "GET", credentials: "include" })
+        // Step 1: Sending a fake request with incorrect credentials
+        fetch("/logout", {
+          method: "GET",
+          headers: {
+            Authorization: "Basic " + btoa("invaliduser:invalidpassword"),
+          },
+          credentials: "include",
+        })
           .then(() => {
-            window.location.replace("/"); // Does both redirect and reload
+            // Step 2: Clearing authentication-related storage
+            document.cookie =
+              "Authorization=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            sessionStorage.clear();
+            localStorage.clear();
+
+            // Step 3: Redirect to logout page to trigger a 401 Unauthorized
+            setTimeout(() => {
+              window.location.href = "/logout";
+            }, 500);
           })
           .catch((error) => console.error("Logout failed:", error));
       }

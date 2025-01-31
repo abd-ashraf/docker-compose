@@ -71,7 +71,7 @@ def set_state():
 def check_state():
     """Check if service should respond based on current state"""
     if CURRENT_STATE == "PAUSED":
-        return jsonify({"error": "Service is paused"}), 503
+        return jsonify({"warning": "Service is paused"}), 200
     elif CURRENT_STATE == "INIT":
         return jsonify({"error": "Service needs login"}), 401
     elif CURRENT_STATE == "SHUTDOWN":
@@ -108,7 +108,7 @@ def get_system_info():
         return {"error": f"Failed to retrieve system information: {str(e)}"}
 
 
-@app.route("/", methods=["GET"])
+@app.route("/request", methods=["GET"])
 def home():
     """Handle home route and return combined system information."""
     # Check state before processing

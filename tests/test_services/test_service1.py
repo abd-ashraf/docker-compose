@@ -14,7 +14,7 @@ def client():
 def ensure_running_state():
     """Ensure system is in RUNNING state before each test"""
     requests.put(
-        "http://localhost:8198/state",
+        "http://localhost:8197/state",
         data="RUNNING",
         headers={"Content-Type": "text/plain"},
         auth=auth
@@ -22,7 +22,7 @@ def ensure_running_state():
 
 def test_service_response(client):
     """Test if service returns 200 and basic response structure"""
-    response = requests.get("http://localhost:8198/service1", auth=auth)
+    response = requests.get("http://localhost:8197/request", auth=auth)
     data = response.json()
     
     assert response.status_code == 200
@@ -31,7 +31,7 @@ def test_service_response(client):
 
 def test_service2_error_response(client):
     """Test if response structure is maintained even when Service2 fails"""
-    response = requests.get("http://localhost:8198/service1", auth=auth)
+    response = requests.get("http://localhost:8197/request", auth=auth)
     data = response.json()
     
     assert response.status_code == 200
