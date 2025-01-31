@@ -108,10 +108,17 @@
           .replace(/\\/g, "");
       }
 
+      const API_BASE_URL =
+        window.location.hostname === "localhost"
+          ? "http://localhost:8197"
+          : "http://195.148.22.168:8197";
+
+      console.log("Using API Base URL:", API_BASE_URL);
+
       // Add state checking function
       async function checkState() {
         try {
-          const response = await fetch("http://localhost:8197/state", {
+          const response = await fetch(`${API_BASE_URL}/state`, {
             credentials: "include",
           });
           const state = await response.text();
@@ -134,7 +141,7 @@
 
       async function sendRequest() {
         try {
-          const response = await fetch("http://localhost:8197/request", {
+          const response = await fetch(`${API_BASE_URL}/request`, {
             credentials: "include",
           });
           const data = await response.json();
@@ -161,14 +168,14 @@
 
       async function initializeState() {
         try {
-          const response = await fetch("http://localhost:8197/state", {
+          const response = await fetch(`${API_BASE_URL}/state`, {
             credentials: "include",
           });
           const state = await response.text();
 
           if (state === "INIT") {
             // Only set to RUNNING if it's INIT
-            await fetch("http://localhost:8197/state", {
+            await fetch(`${API_BASE_URL}/state`, {
               credentials: "include",
               method: "PUT",
               body: "RUNNING",
@@ -193,7 +200,7 @@
 
       async function changeState(newState) {
         try {
-          const response = await fetch("http://localhost:8197/state", {
+          const response = await fetch(`${API_BASE_URL}/state`, {
             credentials: "include",
             method: "PUT",
             body: newState,

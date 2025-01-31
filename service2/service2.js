@@ -46,5 +46,5 @@ app.get("/system_info", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Service2 listening at http://localhost:${port}`);
+  console.log(`Service2 listening at :${port}`);
 });
